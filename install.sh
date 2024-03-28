@@ -11,6 +11,8 @@ nix-env -iA nixpkgs.zsh \
             nixpkgs.tmuxifier \
             nixpkgs.stow \
             nixpkgs.antidote \
+            nixpkgs.platformio-core \
+
 
 #add zsh to valid login shell
 command -v zsh | sudo tee -a /etc/shells
