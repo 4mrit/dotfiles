@@ -9,10 +9,12 @@ fi
 autoload -Uz compinit
 compinit
 
+source ~/.config/tmux/plugins/tmuxifier/bin/ 
 source ~/.nix-profile/etc/profile.d/nix.sh
 source ~/.config/zsh/zsh_plugins.zsh
 source ~/.aliases
 source ~/.env
+bindkey -M viins 'jj' vi-cmd-mode
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.config/p10k/p10k.zsh ]] || source ~/.config/p10k/p10k.zsh

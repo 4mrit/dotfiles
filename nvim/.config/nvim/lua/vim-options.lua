@@ -3,7 +3,7 @@ vim.cmd "set tabstop=2"
 vim.cmd "set softtabstop=2"
 vim.cmd "set shiftwidth=2"
 vim.g.mapleader = " "
-vim.keymap.set("i", "jk", "<ESC>", { desc = "Escape insert mode" })
+vim.keymap.set("i", "jj", "<nrm>", { desc = "Escape insert mode" })
 vim.keymap.set("n", ";", ":", {})
 vim.keymap.set("n", "<TAB>", ":tabn<CR>", {})
 vim.keymap.set({ "n", "i" }, "<C-s>", "<cmd> w <CR>", {})

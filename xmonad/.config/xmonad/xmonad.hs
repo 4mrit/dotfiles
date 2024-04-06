@@ -98,7 +98,7 @@ myBrowser :: String
 myBrowser = "thorium-browser "  -- Sets firefox as browser
 
 myEditor :: String
-myEditor = myTerminal ++ " -e vim "    -- Sets vim as editor
+myEditor = myTerminal ++ " -e nvim "    -- Sets vim as editor
 
 myIDE :: String
 myIDE = "vscodium"
@@ -124,6 +124,7 @@ windowCount = gets $ Just . show . length . W.integrate' . W.stack . W.workspace
 myStartupHook :: X ()
 myStartupHook = do
   spawnOnce "bash ~/.config/rescources/script/startup"
+  spawn "alacritty -e  'setxkbmap -print -verbose 10 && dunstify \"keyboard layout\"  ' "
   setWMName "LG3D"
 
 myNavigation :: TwoD a (Maybe a)

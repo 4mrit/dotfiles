@@ -10,7 +10,7 @@ nix-env -iA nixpkgs.zsh \
             nixpkgs.tmux \
             nixpkgs.stow \
             nixpkgs.antidote \
-            nixpkgs.platformio-core \
+	    nixpkgs.xcape \
 
 
 #add zsh to valid login shell
