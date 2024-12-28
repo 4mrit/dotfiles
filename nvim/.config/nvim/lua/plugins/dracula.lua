@@ -7,6 +7,6 @@ return {
         menu = "#1e1e2e",
       },
     }
-    vim.cmd.colorscheme "dracula"
+    -- vim.cmd.colorscheme "dracula"
   end,
 }

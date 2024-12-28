@@ -1,0 +1,21 @@
+return {
+  "mistricky/codesnap.nvim",
+  build = "make build_generator",
+  opts = {
+    mac_window_bar = true,
+    title = "CodeSnap.nvim",
+    code_font_family = "JetBrainsMono Nerd Font",
+    watermark_font_family = "Pacifico",
+    watermark = "github/4mrit",
+    bg_theme = "bamboo",
+    bg_color = "#535c68",
+    breadcrumbs_separator = "/",
+    has_breadcrumbs = true,
+    has_line_number = true,
+    show_workspace = false,
+    min_width = 0,
+    bg_x_padding = 20,
+    bg_y_padding = 15,
+    save_path = os.getenv "XDG_PICTURES_DIR" or (os.getenv "HOME" .. "/Pictures"),
+  },
+}
