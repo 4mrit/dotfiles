@@ -12,13 +12,14 @@ import XMonad.Actions.GridSelect
 import XMonad.Actions.MouseResize
 import XMonad.Actions.Promote
 import XMonad.Actions.RotSlaves (rotSlavesDown, rotAllDown)
+import XMonad.Actions.SpawnOn (spawnHere)
 import XMonad.Actions.WindowGo (runOrRaise)
 import XMonad.Actions.WithAll (sinkAll, killAll)
 import qualified XMonad.Actions.Search as S
 
     -- Data
 import Data.Char (isSpace, toUpper)
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust ,listToMaybe)
 import Data.Monoid
 import Data.Maybe (isJust)
 import Data.Tree
@@ -66,10 +67,11 @@ import XMonad.Util.Dmenu
 import XMonad.Util.EZConfig (additionalKeysP, mkNamedKeymap)
 import XMonad.Util.NamedActions
 import XMonad.Util.NamedScratchpad
+import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Run (runProcessWithInput, safeSpawn, spawnPipe)
 import XMonad.Util.SpawnOnce
 import Graphics.X11.ExtraTypes.XF86 (xF86XK_AudioMicMute, xF86XK_AudioLowerVolume, xF86XK_AudioRaiseVolume, xF86XK_AudioMute, xF86XK_MonBrightnessDown, xF86XK_MonBrightnessUp, xF86XK_AudioPlay, xF86XK_AudioPrev, xF86XK_AudioNext)
-import Control.Monad ( join, when )
+import Control.Monad ( join, when ,filterM)
 
    -- ColorScheme module (SET ONLY ONE!)
       -- Possible choice are:
@@ -84,6 +86,7 @@ import Control.Monad ( join, when )
       -- SolarizedLight
       -- TomorrowNight
 import Colors.DoomOne
+import Control.Concurrent (threadDelay)
 
 myFont :: String
 myFont = "xft:SauceCodePro Nerd Font Mono:regular:size=9:antialias=true:hinting=true"
@@ -95,7 +98,10 @@ myTerminal :: String
 myTerminal = "alacritty"    -- Sets default terminal
 
 myBrowser :: String
-myBrowser = "thorium-browser "  -- Sets firefox as browser
+myBrowser = "zen-browser"  -- Sets firefox as browser
+
+myTodolistManager:: String
+myTodolistManager= "planify"  -- Sets planify as todolist manager
 
 myEditor :: String
 myEditor = myTerminal ++ " -e nvim "    -- Sets vim as editor
@@ -248,35 +254,35 @@ myManageHook = composeAll
   -- using 'doShift ( myWorkspaces !! 7)' sends program to workspace 8!
   -- I'm doing it this way because otherwise I would have to write out the full
   -- name of my workspaces and the names would be very long if using clickable workspaces.
-  [ className =? "confirm"         --> doFloat
-  , className =? "file_progress"   --> doFloat
-  , className =? "dialog"          --> doFloat
-  , className =? "download"        --> doFloat
-  , className =? "error"           --> doFloat
-  , className =? "Gimp"            --> doFloat
-  , className =? "notification"    --> doFloat
-  , className =? "pinentry-gtk-2"  --> doFloat
-  , className =? "splash"          --> doFloat
-  , className =? "toolbar"         --> doFloat
-  , className =? "app"             --> doFloat
-  , title =? "Launcher"      --> doRectFloat (W.RationalRect (1 % 3) (1 % 3) (1 % 3) (1 % 3) )
- -- , className =? "Alacritty"         --> doFloat
-  , className =? "Yad"             --> doCenterFloat
-  , title =? "swings"              --> doCenterFloat
-  --, title =? "swings"  		    --> doFloat
-  , title =? "Oracle VM VirtualBox Manager"  --> doFloat
-  , title =? "Mozilla Firefox"        --> doShift ( myWorkspaces !! 1 )
-  , title =? "horium"                --> doShift ( myWorkspaces !! 1 )
-  , title =? "VSCodium"               --> doShift ( myWorkspaces !! 2 )
-  , title =? "Spotify"                --> doShift ( myWorkspaces !! 7 )
-  , title =? "Spotify Free"           --> doShift ( myWorkspaces !! 7 )
-  , className =? "Brave-browser"      --> doShift ( myWorkspaces !! 1 )
-  , className =? "spotify"            --> doShift ( myWorkspaces !! 7 )
-  , className =? "Gimp"               --> doShift ( myWorkspaces !! 8 )
-  , className =? "VirtualBox Manager" --> doShift ( myWorkspaces !! 4 )
-  , className =? "Thorium-browser" --> doShift ( myWorkspaces !! 1 )
-  , (className =? "firefox" <&&> resource =? "Dialog") --> doFloat  -- Float Firefox Dialog
-  , isFullscreen -->  doFullFloat
+  [ {- className =? "confirm"                                --> doFloat -}
+  -- , className =? "file_progress"                          --> doFloat
+  -- , className =? "dialog"                                 --> doFloat
+  -- , className =? "download"                               --> doFloat
+  -- , className =? "error"                                  --> doFloat
+  -- , className =? "Gimp"                                   --> doFloat
+  -- , className =? "notification"                           --> doFloat
+  -- , className =? "pinentry-gtk-2"                         --> doFloat
+  -- , className =? "splash"                                 --> doFloat
+  -- , className =? "toolbar"                                --> doFloat
+  -- , className =? "app"                                    --> doFloat
+  -- , className =? "Yad"                                    --> doCenterFloat
+  -- , className =? "io.github.alainm23.planify.quick-add"   --> doCenterFloat
+  -- , title =? "swings"                                     --> doCenterFloat
+  -- , title =? "Oracle VM VirtualBox Manager"               --> doFloat
+  -- , title =? "Launcher"                                   --> doRectFloat (W.RationalRect (1 % 3) (1 % 3) (1 % 3) (1 % 3) )
+  --
+  -- , title =? "Mozilla Firefox"        --> doShift ( myWorkspaces !! 1 )
+  -- , title =? "Thorium"                --> doShift ( myWorkspaces !! 1 )
+  -- , title =? "VSCodium"               --> doShift ( myWorkspaces !! 2 )
+  -- , title =? "Planify"                --> doShift ( myWorkspaces !! 6 )
+  -- , className =? "Brave-browser"      --> doShift ( myWorkspaces !! 1 )
+  -- , className =? "spotify"            --> doShift ( myWorkspaces !! 7 )
+  -- , className =? "Gimp"               --> doShift ( myWorkspaces !! 8 )
+  -- , className =? "VirtualBox Manager" --> doShift ( myWorkspaces !! 4 )
+  -- , className =? "zen-alpha"          --> doShift ( myWorkspaces !! 1 )
+  -- , className =? "xfreerdp"           --> doShift ( myWorkspaces !! 7 )
+  -- , (className =? "firefox" <&&> resource =? "Dialog") --> doFloat  -- Float Firefox Dialog
+  -- , isFullscreen -->  doFullFloat
   ]  
 
 
@@ -300,7 +306,8 @@ myKeys c =
   let subKeys str ks = subtitle' str : mkNamedKeymap c ks in
   subKeys "Xmonad Essentials"
   [ ("M-C-r", addName "Recompile XMonad"       $ spawn "xmonad --recompile")
-  , ("M-S-r", addName "Restart XMonad"         $ spawn "xmonad --restart && feh --bg-fill --no-fehbg --randomize $HOME/.config/rescources/wallpapers/")
+  , ("M-S-r", addName "Restart XMonad"         $ spawn "xmonad --restart ")
+  -- , ("M-S-r", addName "Restart XMonad"         $ spawn "xmonad --restart {- && feh --bg-fill --no-fehbg --randomize $HOME/.config/rescources/wallpapers/" -})
   -- , ("M-S-q", addName "Quit XMonad"            $ sequence_ [spawn (mySoundPlayer ++ shutdownSound), qio exitSuccess])
   -- , ("M-S-q", addName "Quit XMonad"           $ qio exitSuccess)
   , ("M-S-c", addName "Kill focused window"    $ kill1)
@@ -351,9 +358,11 @@ myKeys c =
   [ 
     ("M-<Return>", addName "Launch terminal"   $ spawn (myTerminal))
   , ("M-b", addName "Launch web browser"       $ spawn (myBrowser))
-  , ("M-C-c", addName "Launch IDET"       $ spawn (myIDE))
+  , ("M-t", addName "Launch web browser"       $ planifyy  "Todoist" "todoist")
+  , ("M-a", addName "Launch web browser"       $ spawn ("io.github.alainm23.planify.quick-add") )
+  , ("M-C-c", addName "Launch IDET"            $ spawn (myIDE))
   , ("M-M1-h", addName "Launch htop"           $ spawn (myTerminal ++ " -e htop"))
-  , ("M-c", addName "launch calculator"         $ spawn "rofi -show calc")
+  , ("M-c", addName "launch calculator"        $ spawn "rofi -show calc")
   ]
 
   -- Switch layouts
@@ -401,7 +410,7 @@ myKeys c =
   , ("<XF86AudioPrev>", addName "mocp next"           $ spawn "playerctl previous")
   -- , ("<XF86AudioNext>", addName "mocp prev"           $ spawn "mocp --next")
   , ("<XF86AudioMicMute>", addName "Toggle audio mute"   $ spawn "pamixer --default-source -t")
-  , ("M-M1-4", addName "Toggle audio mute"   $ spawn "pamixer --default-source -t && dunstify 'Mic'")
+  , ("M-M1-4", addName "Toggle audio mute"   $ spawn "bash $HOME/.config/rescources/script/toggle_mic.sh")
 
   , ("<XF86AudioMute>", addName "Toggle audio mute"   $ spawn "bash $HOME/.config/rescources/script/changevolume mute")
   , ("M-M1-1", addName "Toggle audio mute"   $ spawn "bash $HOME/.config/rescources/script/changevolume mute")
@@ -426,13 +435,65 @@ myKeys c =
   , ("M-M1-<Down>", addName "rotate screen down" $spawn "xrandr -o inverted")
   , ("M-M1-<Left>", addName "rotate screen left" $spawn "xrandr -o left")
   , ("M-M1-<Right>", addName "rotate screen right" $spawn "xrandr -o right")
-  , ("M-M1-w" ,addName "turnoff external display" $spawn "bash -c 'source ~/.config/rescources/script/display; toggle_primary_display_state' && dunstify 'External Diaplay Error !!'") 
-  , ("M-M1-e" ,addName "turnoff external display" $spawn "bash -c 'source ~/.config/rescources/script/display; toggle_secondary_display_state' && dunstify 'Internal Display Error !!'") 
+  , ("M-M1-w" ,addName "turnoff external display" $spawn "bash -c 'source ~/.config/rescources/script/display/display; toggle_primary_display_state' && dunstify 'External Diaplay Error !!'") 
+  , ("M-M1-e" ,addName "turnoff external display" $spawn "bash -c 'source ~/.config/rescources/script/display/display; toggle_secondary_display_state' && dunstify 'Internal Display Error !!'") 
   , ("M-M1-l", addName "lock" $spawn "systemctl suspend")
+  , ("M-S-w", addName "lock" $spawn "bash .config/rescources/script/windows")
+  , ("M-S-x", addName "lock" $spawn "bash .config/rescources/script/xkill")
   ]
   -- The following lines are needed for named scratchpads.
     where nonNSP          = WSIs (return (\ws -> W.tag ws /= "NSP"))
           nonEmptyNonNSP  = WSIs (return (\ws -> isJust (W.stack ws) && W.tag ws /= "NSP"))
+
+
+
+-- Function to find a window by its class name
+findWindowByClassName :: String -> X (Maybe Window)
+findWindowByClassName className = withWindowSet $ \ws -> do
+    let allWindows = W.allWindows ws
+    matchingWindows <- filterM (hasClassName className) allWindows
+    return $ listToMaybe matchingWindows
+
+-- HelpeC function to check if a window has a specific class name
+hasClassName :: String -> Window -> X Bool
+hasClassName className window = withDisplay $ \d -> do
+    classHint <- io $ getClassHint d window
+    return (resClass classHint == className)
+
+--- Function to switch to a window by its class name, or spawn it if not found
+focusWindow :: Window -> X ()
+focusWindow windowName = do
+    windows $ W.focusWindow windowName
+
+--- Function to switch to a window by its class name, or spawn it if not found
+focusWindowUsingClassName :: String -> X ()
+focusWindowUsingClassName className = do
+    maybeWindow <- findWindowByClassName className
+    case maybeWindow of
+        Just window -> focusWindow window
+
+-- Function to retry focusing the window
+retryFocus :: String -> Int -> Int -> X ()
+retryFocus className retries delay = do
+    liftIO $ threadDelay (delay * 1000) -- delay in milliseconds
+    maybeWindow <- findWindowByClassName className
+    case maybeWindow of
+        Just window -> windows $ W.focusWindow window
+        Nothing -> when (retries > 0) $ retryFocus className (retries - 1) delay
+
+planifyy :: String -> String -> X ()
+planifyy className cmd = do
+    switchOrSpawn className cmd
+    switchOrSpawn className cmd
+
+-- Function to switch to a window by its class name, or spawn it if not found
+switchOrSpawn :: String -> String -> X ()
+switchOrSpawn className cmd = do
+    maybeWindow <- findWindowByClassName className
+    case maybeWindow of
+        Just window -> focusWindow window
+        Nothing -> do
+                  spawn cmd
 
 main :: IO ()
 main = do

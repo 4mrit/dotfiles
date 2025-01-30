@@ -13,6 +13,7 @@ vim.opt.relativenumber = true
 -- vim.o.clipboard = "unnamedplus"
 
 vim.g.mapleader = " "
+vim.g.vimtex_view_method = "zathura"
 
 vim.keymap.set("i", "jj", "<ESC>", { desc = "Escape insert mode" })
 vim.keymap.set("n", ";", ":", {})

@@ -10,8 +10,7 @@ nix-env -iA nixpkgs.zsh \
             nixpkgs.tmux \
             nixpkgs.stow \
             nixpkgs.antidote \
-	    nixpkgs.xcape \
-
+	          nixpkgs.xcape \
 
 #add zsh to valid login shell
 command -v zsh | sudo tee -a /etc/shells
